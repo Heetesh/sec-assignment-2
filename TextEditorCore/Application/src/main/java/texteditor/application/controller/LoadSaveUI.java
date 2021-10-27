@@ -1,15 +1,14 @@
-package texteditor.application;
+package texteditor.application.controller;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import texteditor.application.controller.FileIO;
+import texteditor.application.controller.FileIOException;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
 public class LoadSaveUI {

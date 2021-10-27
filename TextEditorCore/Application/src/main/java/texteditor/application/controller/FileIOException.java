@@ -1,4 +1,4 @@
-package texteditor.application;
+package texteditor.application.controller;
 
 public class FileIOException extends RuntimeException {
     public FileIOException(String message) {

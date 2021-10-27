@@ -2,8 +2,8 @@ plugins {
     id 'java'
 }
 
-group 'io.github.heetesh'
-version '1.0-SNAPSHOT'
+group 'texteditor.application.api'
+version 'unspecified'
 
 repositories {
     mavenCentral()
@@ -12,8 +12,6 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    implementation project(':API')
-
 }
 
 test {

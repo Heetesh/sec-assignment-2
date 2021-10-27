@@ -1,6 +1,5 @@
-package texteditor.application;
+package texteditor.application.controller;
 
-import java.awt.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.util.ResourceBundle;
@@ -14,7 +13,7 @@ public class FileIO {
         this.bundle = bundle;
     }
 
-    public String load(File file, String encoding) throws FileIOException  {
+    public String load(File file, String encoding) throws FileIOException {
         // TODO : Loading mechanism
         StringBuilder fileContent = new StringBuilder();
 
@@ -46,7 +45,6 @@ public class FileIO {
             while ((line = br.readLine()) != null) {
                 fileContent.append(line);
             }
-            System.out.println(fileContent.toString());
             return fileContent.toString();
         } catch (IOException e) {
             throw new FileIOException(this.bundle.getString("fileLoadErrMsg"), e);

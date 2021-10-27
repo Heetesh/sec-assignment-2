@@ -2,10 +2,11 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.10'
+
 }
 
 application {
-    mainClassName = 'texteditor.application.TextEditorGUI'
+    getMainClass().set('texteditor.application.view.TextEditorGUI')
 }
 
 javafx {
@@ -22,6 +23,9 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation project(':API')
+    implementation('org.python:jython-standalone:2.7.1')
+
 }
 
 test {
