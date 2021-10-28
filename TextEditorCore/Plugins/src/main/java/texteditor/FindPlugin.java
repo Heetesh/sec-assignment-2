@@ -1,4 +1,4 @@
-package texteditor.plugins;
+package texteditor;
 
 import texteditor.api.API;
 import texteditor.api.Plugin;

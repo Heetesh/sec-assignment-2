@@ -3,11 +3,9 @@ package texteditor.application.view;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventType;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -16,19 +14,22 @@ import texteditor.api.API;
 import texteditor.api.Plugin;
 import texteditor.api.handlers.ButtonHandler;
 import texteditor.api.handlers.TextModificationHandler;
+import texteditor.application.ParsedContent;
 import texteditor.application.controller.FileIO;
 import texteditor.application.controller.LoadSaveUI;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
-
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TextEditorGUI extends Application
 {
@@ -40,13 +41,12 @@ public class TextEditorGUI extends Application
     private Stage stageReference = null;
     private List<String> pluginsImplemented = new ArrayList<>();
     private List<String> scriptsImplemented = new ArrayList<>();
+    private List<ParsedContent> parsedContents = new ArrayList<>();
 
     public static void main(String[] args)
     {
         Application.launch(args);
     }
-    
-//    private TextArea textArea = new TextArea();
     private TextArea textArea = new TextArea();
     private ToolBar toolBar;
     private Scene scene;
@@ -54,8 +54,9 @@ public class TextEditorGUI extends Application
     @Override
     public void start(Stage stage)
     {
+//        parseKeymaps();
         stageReference = stage;
-        setupApi(this.api);
+        setupApi();
         var localeString = getParameters().getNamed().get("locale"); //Get the locale
 
         if (localeString == null) {
@@ -69,20 +70,17 @@ public class TextEditorGUI extends Application
 
         loadSaveUI = new LoadSaveUI(stage, fileIO, bundle, textArea);
 
-
         stage.setTitle(this.bundle.getString("appname"));
         stage.setMinWidth(800);
 
         // Create toolbar
         Button btn1 = new Button("Button1");
-        Button btn3 = new Button("Button3");
 
         Button saveBtn = new Button(this.bundle.getString("saveBtn"));
         Button loadBtn = new Button(this.bundle.getString("loadBtn"));
         Button addPluginBtn = new Button(this.bundle.getString("addPluginBtn"));
         Button addScriptBtn = new Button(this.bundle.getString("addScriptBtn"));
-        toolBar = new ToolBar(saveBtn, loadBtn, addPluginBtn, addScriptBtn, btn1, btn3);
-
+        toolBar = new ToolBar(saveBtn, loadBtn, addPluginBtn, addScriptBtn);
 
         // Subtle user experience tweaks
         toolBar.setFocusTraversable(false);
@@ -96,8 +94,8 @@ public class TextEditorGUI extends Application
         scene = new Scene(mainBox);
         
         // Button event handlers.
-        btn1.setOnAction(event -> showDialog1());
-        btn3.setOnAction(event -> toolBar.getItems().add(new Button("ButtonN")));
+//        btn1.setOnAction(event -> showDialog1());
+//        btn3.setOnAction(event -> toolBar.getItems().add(new Button("ButtonN")));
 
         // TODO: Test save and load features
         saveBtn.setOnAction(event -> loadSaveUI.save(this.textArea.getText()));
@@ -108,16 +106,20 @@ public class TextEditorGUI extends Application
 
         addScriptBtn.setOnAction(event -> showAddScriptDialog());
 
-        
         // TextArea event handlers & caret positioning.
-        textArea.textProperty().addListener((object, oldValue, newValue) -> 
+        textArea.textProperty().addListener((object, oldValue, newValue) ->
         {
-            System.out.println("caret position is " + textArea.getCaretPosition() + 
+            System.out.println(oldValue + "this is old");
+            System.out.println("caret position is " + textArea.getCaretPosition() +
                                "; text is\n---\n" + newValue + "\n---\n");
         });
-        
-        textArea.setText("This is some\ndemonstration text\nTry pressing F1, ctrl+b, ctrl+shift+b or alt+b.");
+
+
+        textArea.setText("This is some\ndemonstration text\nTry pressing F1, ctrl+b, ctrl+shift+b or alt+b." +
+                "\u677f");
         textArea.selectRange(6, 3); // Select a range of text (and move the caret to the end)
+
+        textArea.replaceText(4,4, " Test");
         
         // Example global keypress handler.
         scene.setOnKeyPressed(keyEvent -> 
@@ -128,13 +130,6 @@ public class TextEditorGUI extends Application
             boolean ctrl = keyEvent.isControlDown();
             boolean shift = keyEvent.isShiftDown();
             boolean alt = keyEvent.isAltDown();
-
-            //
-//            KeyCode f1 = KeyCode.getKeyCode("F1");
-//            KeyCode b = KeyCode.getKeyCode("B");
-            //
-
-
 
             if(key == KeyCode.F1)
             {
@@ -154,14 +149,15 @@ public class TextEditorGUI extends Application
             }
         });
 
-
-        
         stage.setScene(scene);
         stage.sizeToScene();
         stage.show();
     }
 
-
+    private void parseKeymaps() throws IOException, ParseException {
+//        Parser parser = new Parser(parsedContents);
+//        parser.parse("../Keymap");
+    }
 
     private void showDialog1()
     {
@@ -193,10 +189,14 @@ public class TextEditorGUI extends Application
         ObservableList<String> list = FXCollections.observableArrayList();
         ListView<String> listView = new ListView<>(list);
 
+        list.addAll(this.pluginsImplemented);
+
 
         BorderPane box = new BorderPane();
         box.setTop(toolBar);
         box.setCenter(listView);
+
+
 
         pluginAddBtn.setOnAction(event -> askForPlugin(list));
 
@@ -224,6 +224,7 @@ public class TextEditorGUI extends Application
                 String pluginSimpleName;
 
                 Plugin plugin = (Plugin) className.getConstructor().newInstance();
+//                Constr
                 pluginSimpleName = plugin.getClass().getName();
 
                 // Check if list has already loaded plugin
@@ -285,9 +286,6 @@ public class TextEditorGUI extends Application
                     list.add(scriptFileName);
                 }
             }
-
-
-
         });
 
         Dialog dialog = new Dialog();
@@ -298,25 +296,22 @@ public class TextEditorGUI extends Application
         dialog.showAndWait();
     }
 
-    private void askForScript() {
-
-    }
     private void showDialog2()
-    {        
+    {
         Button addBtn = new Button("addText");
         Button removeBtn = new Button("removeText");
         ToolBar toolBar = new ToolBar(addBtn, removeBtn);
         
         addBtn.setOnAction(event -> new Alert(Alert.AlertType.INFORMATION, "Add...", ButtonType.OK).showAndWait());
         removeBtn.setOnAction(event -> new Alert(Alert.AlertType.INFORMATION, "Remove...", ButtonType.OK).showAndWait());
-        
+
         // FYI: 'ObservableList' inherits from the ordinary List interface, but also works as a subject for any 'observer-pattern' purposes; e.g., to allow an on-screen ListView to display any changes made to the list as they are made.
-        
+
         ObservableList<String> list = FXCollections.observableArrayList();
-        ListView<String> listView = new ListView<>(list);        
+        ListView<String> listView = new ListView<>(list);
         list.add("Item 1");
         list.add("Item 2");
-        list.add("Item 3");        
+        list.add("Item 3");
         
         BorderPane box = new BorderPane();
         box.setTop(toolBar);
@@ -330,19 +325,23 @@ public class TextEditorGUI extends Application
         dialog.showAndWait();
     }
 
-    private void setupApi(API api) {
-        api = new API() {
+    private void setupApi() {
+        this.api = new API() {
             @Override
             public String getLocalDateAndTime() {
                 // TODO
-                return null;
+                ZonedDateTime time = ZonedDateTime.now();
+                DateTimeFormatter dtf = DateTimeFormatter
+                        .ofLocalizedDateTime(FormatStyle.MEDIUM)
+                        .withLocale(locale);
+
+                return dtf.format(time);
             }
 
             @Override
             public void registerNewButtonToGui(String buttonName, ButtonHandler callback) {
 //                btn3.setOnAction(event -> toolBar.getItems().add(new Button("ButtonN")));
                 var button = new Button(buttonName);
-
                 // Setting handler on button action
                 button.setOnAction(event -> callback.handleEvent());
 
@@ -352,7 +351,6 @@ public class TextEditorGUI extends Application
             @Override
             public String requestStringFromUser(String dialogueTitle, String headerText) {
                 var dialog = new TextInputDialog();
-
                 dialog.setTitle(dialogueTitle);
                 dialog.setHeaderText(headerText);
 
@@ -364,33 +362,41 @@ public class TextEditorGUI extends Application
                 /*  Start from caret pos
                 *   Find first text occurrence
                 *   Highlight text -> selectRange fn??
+                *   Index from 0 - caret = not used range
+                *   Index from caret+1 = end = used range
                 *   */
-
                 // Get care position first
                 int caretPos = textArea.getCaretPosition();
                 // Get text from caret onwards
-                String textFromCaret = textArea.getText(caretPos, textArea.getLength());
-                // TODO
+                String textFromCaretOnwards = textArea.getText(caretPos+1, textArea.getLength());
+                Pattern word = Pattern.compile(userInput);
+                Matcher match = word.matcher(textFromCaretOnwards);
+
+                int start = 0, end = 0;
+                int realStart, realEnd;
+
+                if (match.find()) {
+                    start = match.start();
+                    end = match.end();
+                }
+
+                realStart = caretPos + start+1;
+                realEnd = caretPos + end+1;
+
+                textArea.selectRange(realStart, realEnd);
             }
 
             @Override
             public void registerKeyPressedForButton(ButtonHandler handler, String keyOne, String keyTwo, String keyThree) {
-//                KeyCode key = keyEvent.getCode();
-//                boolean ctrl = keyEvent.isControlDown();
-//                boolean shift = keyEvent.isShiftDown();
-//                boolean alt = keyEvent.isAltDown();
                 scene.setOnKeyPressed(keyEvent -> {
                     KeyCode key = keyEvent.getCode();
-
                     KeyCode one = KeyCode.getKeyCode(keyOne);
                     KeyCode two = KeyCode.getKeyCode(keyTwo);
                     KeyCode three = KeyCode.getKeyCode(keyThree);
 
-
                     if (key == one && key == two && key == three) {
                         handler.handleEvent();
                     }
-
                 });
             }
 
@@ -398,10 +404,8 @@ public class TextEditorGUI extends Application
             public void registerKeyPressedForButton(ButtonHandler handler, String keyOne, String keyTwo) {
                 scene.setOnKeyPressed(keyEvent -> {
                     KeyCode key = keyEvent.getCode();
-
                     KeyCode one = KeyCode.getKeyCode(keyOne);
                     KeyCode two = KeyCode.getKeyCode(keyTwo);
-
 
                     if (key == one && key == two) {
                         handler.handleEvent();
@@ -413,9 +417,7 @@ public class TextEditorGUI extends Application
             public void registerKeyPressedForButton(ButtonHandler handler, String keyOne) {
                 scene.setOnKeyPressed(keyEvent -> {
                     KeyCode key = keyEvent.getCode();
-
                     KeyCode one = KeyCode.getKeyCode(keyOne);
-
 
                     if (key == one) {
                         handler.handleEvent();
@@ -429,15 +431,15 @@ public class TextEditorGUI extends Application
             }
 
             @Override
-            public void addTextToGUI(String dateAndTime, int caretPosition) {
-                // TODO
-                textArea.positionCaret(caretPosition);
-//                textArea.
+            public void addDateAndTimeText(String dateAndTime, int caretPosition) {
+                String dateTime = this.getLocalDateAndTime();
+                textArea.replaceText(caretPosition, caretPosition, String.format(locale, "  %s",dateAndTime));
             }
 
             @Override
             public void registerTextAndModifyToProvided(String monitorText, String replaceText, TextModificationHandler handler) {
                 // TODO
+//                textArea.replaceText();
             }
         };
     }

@@ -29,7 +29,7 @@ public interface API {
 
     int getGUICaretPosition();
 
-    void addTextToGUI(String dateAndTime, int caretPosition);
+    void addDateAndTimeText(String dateAndTime, int caretPosition);
 
     void registerTextAndModifyToProvided(String monitorText, String replaceText, TextModificationHandler handler);
 }

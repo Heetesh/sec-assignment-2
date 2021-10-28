@@ -1,8 +1,7 @@
-package texteditor.plugins;
+package texteditor;
 
 import texteditor.api.API;
 import texteditor.api.Plugin;
-import texteditor.api.handlers.ButtonHandler;
 
 public class DatePlugin implements Plugin {
     @Override
@@ -14,7 +13,7 @@ public class DatePlugin implements Plugin {
             String dateAndTime = api.getLocalDateAndTime();
 
             // Add the text to Text editor
-            api.addTextToGUI(dateAndTime, caretPosition);
+            api.addDateAndTimeText(dateAndTime, caretPosition);
         });
     }
 }
