@@ -12,7 +12,9 @@
             <option value="$PROJECT_DIR$/TextEditorCore" />
             <option value="$PROJECT_DIR$/TextEditorCore/API" />
             <option value="$PROJECT_DIR$/TextEditorCore/Application" />
+            <option value="$PROJECT_DIR$/TextEditorCore/Parser" />
             <option value="$PROJECT_DIR$/TextEditorCore/Plugins" />
+            <option value="$PROJECT_DIR$/TextEditorCore/texteditor.Parser" />
           </set>
         </option>
       </GradleProjectSettings>

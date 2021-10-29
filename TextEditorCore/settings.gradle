@@ -2,4 +2,6 @@ rootProject.name = 'TextEditorCore'
 include 'Application'
 include 'Plugins'
 include 'API'
+include 'texteditor.Parser'
+include 'Parser'
 

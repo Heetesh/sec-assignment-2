@@ -6,6 +6,7 @@ public class ParsedContent {
     private String quoteContents;
     private String caretOrStart;
 
+
     public ParsedContent setComboString(String comboString) {
         this.comboString = comboString;
         return this;

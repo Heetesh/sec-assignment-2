@@ -3,6 +3,8 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="TextEditorCore.main" target="11" />
+      <module name="TextEditorCore.Parser.main" target="11" />
+      <module name="TextEditorCore.Parser.test" target="11" />
       <module name="TextEditorCore.test" target="11" />
     </bytecodeTargetLevel>
   </component>

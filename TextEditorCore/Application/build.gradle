@@ -4,9 +4,31 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.10'
 
     /*https://github.com/IntershopCommunicationsAG/javacc-gradle-plugin*/
-    id "com.intershop.gradle.javacc" version "4.0.1"
-
+    id 'com.intershop.gradle.javacc' version '3.1.0'
 }
+
+//src/main/resources/ParserFile.jj
+javacc {
+    configs {
+        parsergenerator {
+            inputFile = file('src/main/resources/ParserFile.jj')
+//            packageName = 'texteditor'
+            //lookahead = '2'
+        }
+    }
+}
+
+//
+//javacc {
+//    // configuration container for all javacc configurations
+//    configs {
+//        template {
+//            inputFile = file('jj/TemplateParser.jj')
+//            packageName = 'com.corporate.internal.parser'
+//            lookahead = '2'
+//        }
+//    }
+//}
 
 
 application {

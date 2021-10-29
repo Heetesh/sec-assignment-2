@@ -18,6 +18,7 @@ import texteditor.application.ParsedContent;
 import texteditor.application.controller.FileIO;
 import texteditor.application.controller.LoadSaveUI;
 
+import java.text.Normalizer;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -54,7 +55,8 @@ public class TextEditorGUI extends Application
     @Override
     public void start(Stage stage)
     {
-//        parseKeymaps();
+
+        parseKeymaps();
         stageReference = stage;
         setupApi();
         var localeString = getParameters().getNamed().get("locale"); //Get the locale
@@ -112,6 +114,7 @@ public class TextEditorGUI extends Application
             System.out.println(oldValue + "this is old");
             System.out.println("caret position is " + textArea.getCaretPosition() +
                                "; text is\n---\n" + newValue + "\n---\n");
+
         });
 
 
@@ -154,9 +157,14 @@ public class TextEditorGUI extends Application
         stage.show();
     }
 
-    private void parseKeymaps() throws IOException, ParseException {
-//        Parser parser = new Parser(parsedContents);
-//        parser.parse("../Keymap");
+    private void parseKeymaps() /*throws IOException, ParseException */{
+//        try {
+////            Parser
+//        } catch (IOException | ParseException e) {
+//            e.printStackTrace();
+//            // TODO: Handle this
+//        }
+
     }
 
     private void showDialog1()

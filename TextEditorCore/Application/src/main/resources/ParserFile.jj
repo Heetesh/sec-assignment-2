@@ -1,11 +1,11 @@
 PARSER_BEGIN(Parser)
 
-package texteditor.application.Parser;
+//package texteditor.parser;
+
 import texteditor.application.ParsedContent;
 import java.io.*;
 import java.text.ParseException;
 import java.util.*;
-import java.io.Serializable;
 
 public class Parser {
     private List<ParsedContent> parsedContents;
@@ -20,7 +20,7 @@ public class Parser {
         // TODO: Consider how to return parsed values
     }
 }
-}
+
 PARSER_END(Parser)
 
 SKIP : { " " | "\t" | "\r" }
@@ -50,8 +50,6 @@ void DSL(List<ParsedContent> parsedContents):
 {
  // TODO: Handle java
  Token combo, insert_Or_delete, quote_string, at_start_or_at_caret;
- List<String> keyCombo = new ArrayList<>();
-
 }
 {
     (
@@ -63,10 +61,10 @@ void DSL(List<ParsedContent> parsedContents):
         {
             parsedContents.add(
                     new ParsedContent()
-                    .setComboString(combo)
-                    .setInsertOrDelete(insert_Or_delete)
-                    .setQuoteContents(quote_string)
-                    .setCaretOrStart(at_start_or_at_caret)
+                    .setComboString(combo.image)
+                    .setInsertOrDelete(insert_Or_delete.image)
+                    .setQuoteContents(quote_string.image)
+                    .setCaretOrStart(at_start_or_at_caret.image)
             );
         }
     )*
