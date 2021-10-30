@@ -1,5 +1,6 @@
 package texteditor.application.view;
 
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,18 +11,18 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.python.util.PythonInterpreter;
+import texteditor.KeymapParser;
+import texteditor.ParseException;
 import texteditor.api.API;
 import texteditor.api.Plugin;
-import texteditor.api.handlers.ButtonHandler;
+import texteditor.api.handlers.Handler;
 import texteditor.api.handlers.TextModificationHandler;
 import texteditor.application.ParsedContent;
 import texteditor.application.controller.FileIO;
 import texteditor.application.controller.LoadSaveUI;
 
-import java.text.Normalizer;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -43,19 +44,20 @@ public class TextEditorGUI extends Application
     private List<String> pluginsImplemented = new ArrayList<>();
     private List<String> scriptsImplemented = new ArrayList<>();
     private List<ParsedContent> parsedContents = new ArrayList<>();
+//    private Parser parser = new Parser();
+    private TextArea textArea = new TextArea();
+    private ToolBar toolBar;
+    private Scene scene;
+
 
     public static void main(String[] args)
     {
         Application.launch(args);
     }
-    private TextArea textArea = new TextArea();
-    private ToolBar toolBar;
-    private Scene scene;
 
     @Override
     public void start(Stage stage)
     {
-
         parseKeymaps();
         stageReference = stage;
         setupApi();
@@ -158,13 +160,14 @@ public class TextEditorGUI extends Application
     }
 
     private void parseKeymaps() /*throws IOException, ParseException */{
-//        try {
-////            Parser
-//        } catch (IOException | ParseException e) {
-//            e.printStackTrace();
-//            // TODO: Handle this
-//        }
-
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader("keymap"));
+            KeymapParser parser = new KeymapParser(bufferedReader);
+            this.parsedContents = parser.DSL();
+            System.out.println(parsedContents.toString());
+        } catch (FileNotFoundException | ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showDialog1()
@@ -278,10 +281,9 @@ public class TextEditorGUI extends Application
                     while ((line = rdr.readLine() )!= null) {
                         scriptFileContent.append(line);
                     }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    new Alert(Alert.AlertType.INFORMATION, "" + e.getMessage(), ButtonType.OK).showAndWait();
+                    return; // break out of code
                 }
 
                 PythonInterpreter interpreter = new PythonInterpreter();
@@ -347,7 +349,7 @@ public class TextEditorGUI extends Application
             }
 
             @Override
-            public void registerNewButtonToGui(String buttonName, ButtonHandler callback) {
+            public void registerNewButtonToGui(String buttonName, Handler callback) {
 //                btn3.setOnAction(event -> toolBar.getItems().add(new Button("ButtonN")));
                 var button = new Button(buttonName);
                 // Setting handler on button action
@@ -395,7 +397,7 @@ public class TextEditorGUI extends Application
             }
 
             @Override
-            public void registerKeyPressedForButton(ButtonHandler handler, String keyOne, String keyTwo, String keyThree) {
+            public void registerKeyPressedForButton(Handler handler, String keyOne, String keyTwo, String keyThree) {
                 scene.setOnKeyPressed(keyEvent -> {
                     KeyCode key = keyEvent.getCode();
                     KeyCode one = KeyCode.getKeyCode(keyOne);
@@ -409,7 +411,7 @@ public class TextEditorGUI extends Application
             }
 
             @Override
-            public void registerKeyPressedForButton(ButtonHandler handler, String keyOne, String keyTwo) {
+            public void registerKeyPressedForButton(Handler handler, String keyOne, String keyTwo) {
                 scene.setOnKeyPressed(keyEvent -> {
                     KeyCode key = keyEvent.getCode();
                     KeyCode one = KeyCode.getKeyCode(keyOne);
@@ -422,7 +424,7 @@ public class TextEditorGUI extends Application
             }
 
             @Override
-            public void registerKeyPressedForButton(ButtonHandler handler, String keyOne) {
+            public void registerKeyPressedForButton(Handler handler, String keyOne) {
                 scene.setOnKeyPressed(keyEvent -> {
                     KeyCode key = keyEvent.getCode();
                     KeyCode one = KeyCode.getKeyCode(keyOne);

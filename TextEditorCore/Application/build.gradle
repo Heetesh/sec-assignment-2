@@ -5,34 +5,28 @@ plugins {
 
     /*https://github.com/IntershopCommunicationsAG/javacc-gradle-plugin*/
     id 'com.intershop.gradle.javacc' version '3.1.0'
+//    id "ca.coglinc.javacc" version "2.4.0"
 }
 
-//src/main/resources/ParserFile.jj
 javacc {
     configs {
         parsergenerator {
-            inputFile = file('src/main/resources/ParserFile.jj')
-//            packageName = 'texteditor'
+            inputFile = file('src/main/javacc/KeymapParser.jj')
+            packageName = 'texteditor'
             //lookahead = '2'
         }
     }
 }
-
-//
-//javacc {
-//    // configuration container for all javacc configurations
-//    configs {
-//        template {
-//            inputFile = file('jj/TemplateParser.jj')
-//            packageName = 'com.corporate.internal.parser'
-//            lookahead = '2'
-//        }
-//    }
+//src/main/java/texteditor/application/view/javacc
+//compileJavacc {
+//    inputDirectory = file('src/main/javacc/')
+//    outputDirectory = file(project.buildDir.absolutePath+ '/generated/javacc')
 //}
 
 
+
 application {
-    getMainClass().set('texteditor.application.view.TextEditorGUI')
+    mainClassName = 'texteditor.application.view.TextEditorGUI'
 }
 
 javafx {

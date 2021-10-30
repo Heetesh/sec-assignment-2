@@ -1,5 +1,5 @@
 package texteditor.api.handlers;
 @FunctionalInterface
-interface Handler {
+public interface Handler {
     void handleEvent();
 }

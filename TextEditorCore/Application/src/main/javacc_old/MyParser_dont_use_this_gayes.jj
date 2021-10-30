@@ -1,0 +1,383 @@
+
+// Hello world JavaCC grammar file.
+
+// Notes:
+// * To change the class name (MyParser), you can simply change it here, but the .java code will
+//   need to be updated accordingly.
+// * To change the *package* name, you also need to edit build.gradle.
+
+PARSER_BEGIN(MyParser)
+package texteditor.application;
+
+import java.util.ArrayList;
+public class MyParser
+{
+    public static String   firstSt, secSt,thirdSt, forthSt, fifthSt, sixthSt, sevthSt,lastSt;
+    protected static TokenHandler tokenHandler;
+    protected static int numLines =0;
+    protected static ArrayList<TokenHandler > list = new ArrayList<TokenHandler>();
+
+}
+
+PARSER_END(MyParser)
+
+SKIP: {  " " |"\t"| "\r"}
+
+TOKEN: {
+
+   < MainKeyCtr : "ctrl"> |
+   < MainKeyShift : "shift"> |
+   < SecondKey : ["a"-"z"]> |
+   < MainKeyalt : "alt"> |
+   < TaskDelete : "delete"> |
+   < Equal: "="> |
+   < TaskInsert : "insert"> |
+   < WhereStartLine : " start of line"> |
+   < WhereCaret : " caret"> |
+   < Plus : "+"> |
+   < AT : "at" > |
+   < InsertStr : "\"" (["a"-"z", "A"-"Z", " ", "/","*"])* "\"">|
+   <NewLine: "\n">
+
+
+}
+
+void getfile() :
+{
+    String first, sec,third, forth, fifth, sixth, sevth;
+
+
+}
+
+{
+  ( getMainKey()<Plus> getSecondInstruction() getThirdSequence()
+  getForthSequence() (getFifthSequence())+
+  gesixthSequence() geseventhSequence()
+  (getLast())?)*
+    <EOF>
+
+    {
+//    keyMapGetter key= new keyMapGetter(list, numLines);
+    }
+
+}
+
+Token getMainKey():
+{
+    Token mainKey;
+    tokenHandler = new TokenHandler();
+
+}
+{
+    mainKey=<MainKeyCtr>
+    {
+        numLines++;
+
+
+        tokenHandler.setFirstSt(mainKey.image);
+         firstSt = mainKey.image;
+        return mainKey;
+    }
+    |mainKey = <MainKeyalt>
+    {
+
+         numLines++;
+         tokenHandler.setFirstSt(mainKey.image);
+
+        firstSt = mainKey.image;
+
+       return mainKey;
+    }
+
+}
+Token getSecondInstruction():
+{
+    Token second;
+    boolean sec = false;
+}
+{
+    second=<MainKeyShift>
+    {
+
+
+
+        tokenHandler.setSecSt(second.image);
+
+        secSt = second.image;
+        return second;
+    }
+    |second = <SecondKey>
+    {
+
+
+
+         tokenHandler.setSecSt(second.image);
+          secSt = second.image;
+        return second;
+    }
+    |second = <MainKeyalt>
+     {
+
+
+
+             tokenHandler.setSecSt(second.image);
+             secSt = second.image;
+            return second;
+     }
+     |second = <MainKeyCtr>
+     {
+
+
+
+              tokenHandler.setSecSt(second.image);
+              secSt = second.image;
+             return second;
+     }
+}
+Token getThirdSequence():
+{
+    Token third;
+}
+{
+    third=<Plus>
+    {
+
+
+
+        tokenHandler.setThirdSt(third.image);
+        thirdSt = third.image;
+        return third;
+    }
+    |third = <Equal>
+    {
+
+
+
+         tokenHandler.setThirdSt(third.image);
+         thirdSt = third.image;
+        return third;
+    }
+}
+
+Token getForthSequence():
+{
+    Token forth;
+}
+{
+
+    forth = <SecondKey>
+    {
+
+        forthSt= forth.image;
+        tokenHandler.setForthSt(forth.image);
+        return forth;
+    }
+    |forth = <TaskDelete>
+    {
+
+        tokenHandler.setForthSt(forth.image);
+         forthSt= forth.image;
+        return forth;
+    }
+    |forth = <TaskInsert>
+    {
+
+              tokenHandler.setForthSt(forth.image);
+               forthSt= forth.image;
+            return forth;
+    }
+    |forth = <MainKeyShift>
+    {
+
+
+                forthSt= forth.image;
+                tokenHandler.setForthSt(forth.image);
+
+                return forth;
+    }
+        |forth = <MainKeyalt>
+        {
+
+                  tokenHandler.setForthSt(forth.image);
+                   forthSt= forth.image;
+
+                  return forth;
+        }
+        |forth = <MainKeyCtr>
+        {
+
+               tokenHandler.setForthSt(forth.image);
+                forthSt= forth.image;
+               return forth;
+        }
+}
+
+Token getFifthSequence():
+{
+    Token fifth;
+}
+{
+    fifth=<Equal>
+    {
+
+
+
+        fifthSt= fifth.image;
+        tokenHandler.setFifthSt(fifth.image);
+
+        return fifth;
+    }
+    |fifth = <TaskDelete>
+    {
+
+        tokenHandler.setFifthSt(fifth.image);
+
+        fifthSt= fifth.image;
+        return fifth;
+    }
+    |fifth = <TaskInsert>
+    {
+
+            tokenHandler.setFifthSt(fifth.image);
+            fifthSt= fifth.image;
+            return fifth;
+    }
+    |fifth = <InsertStr>
+    {
+
+
+               tokenHandler.setFifthSt(fifth.image);
+               fifthSt= fifth.image;
+               return fifth;
+    }
+
+}
+
+Token gesixthSequence():
+{
+    Token sixth;
+}
+{
+    sixth=<Equal>
+    {
+
+
+        tokenHandler.setSixthSt(sixth.image);
+        sixthSt= sixth.image;
+        return sixth;
+    }
+    |sixth = <TaskDelete>
+    {
+
+
+         tokenHandler.setSixthSt(sixth.image);
+        sixthSt= sixth.image;
+        return sixth;
+    }
+    |sixth = <TaskInsert>
+    {
+
+           tokenHandler.setSixthSt(sixth.image);
+            sixthSt= sixth.image;
+            return sixth;
+    }
+    |sixth = <InsertStr>
+    {
+
+               tokenHandler.setSixthSt(sixth.image);
+               sixthSt= sixth.image;
+               return sixth;
+    }
+    |sixth = <AT>
+    {
+
+                 tokenHandler.setSixthSt(sixth.image);
+                   sixthSt= sixth.image;
+                   return sixth;
+    }
+
+}
+
+Token geseventhSequence():
+{
+    Token seventh;
+}
+{
+    seventh=<WhereCaret>
+    {
+
+        tokenHandler.setSevthSt(seventh.image);
+        sevthSt=seventh.image;
+        return seventh;
+    }
+    |seventh = <WhereStartLine>
+    {
+
+
+
+        sevthSt=seventh.image;
+        tokenHandler.setSevthSt(seventh.image);
+        return seventh;
+    }
+    |seventh = <InsertStr>
+    {
+
+
+             tokenHandler.setSevthSt(seventh.image);
+             sevthSt=seventh.image;
+            return seventh;
+    }
+    |seventh = <AT>
+    {
+
+
+                tokenHandler.setSevthSt(seventh.image);
+                sevthSt=seventh.image;
+               return seventh;
+    }
+
+
+}
+Token getLast():
+{
+    Token last;
+}
+{
+    last=<WhereCaret>
+    {
+
+         tokenHandler.setLastSt(last.image);
+         list.add(tokenHandler);
+         lastSt = last.image;
+        return last;
+    }
+    |last = <WhereStartLine>
+    {
+
+         tokenHandler.setLastSt(last.image);
+         list.add(tokenHandler);
+         lastSt = last.image;
+
+        return last;
+    }
+    |last = <AT>
+    {
+
+
+            tokenHandler.setLastSt(last.image);
+            list.add(tokenHandler);
+            lastSt = last.image;
+            return last;
+    }
+    |last = <NewLine>
+    {
+
+
+                 tokenHandler.setLastSt(last.image);
+                 list.add(tokenHandler);
+                 lastSt = last.image;
+               return last;
+    }
+
+
+}

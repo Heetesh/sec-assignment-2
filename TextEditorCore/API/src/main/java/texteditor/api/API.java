@@ -1,6 +1,7 @@
 package texteditor.api;
 
 import texteditor.api.handlers.ButtonHandler;
+import texteditor.api.handlers.Handler;
 import texteditor.api.handlers.KeyPressedHandler;
 import texteditor.api.handlers.TextModificationHandler;
 
@@ -17,15 +18,15 @@ public interface API {
 
 //    void registerFnKeyPress(KeyPressedHandler callback);
 
-    void registerNewButtonToGui(String buttonName, ButtonHandler callback);
+    void registerNewButtonToGui(String buttonName, Handler callback);
 
     String requestStringFromUser(String dialogueTitle, String headerText);
 
     void findStringFirstOccurrenceAndHighlight(String userInput);
 
-    void registerKeyPressedForButton(ButtonHandler handler, String keyOne, String keyTwo, String three);
-    void registerKeyPressedForButton(ButtonHandler handler, String keyOne, String keyTwo);
-    void registerKeyPressedForButton(ButtonHandler handler, String keyOne);
+    void registerKeyPressedForButton(Handler handler, String keyOne, String keyTwo, String three);
+    void registerKeyPressedForButton(Handler handler, String keyOne, String keyTwo);
+    void registerKeyPressedForButton(Handler handler, String keyOne);
 
     int getGUICaretPosition();
 

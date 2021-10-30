@@ -42,4 +42,10 @@ public class ParsedContent {
     public String getCaretOrStart() {
         return caretOrStart;
     }
+
+    @Override
+    public String toString() {
+        return " " +  comboString + insertOrDelete + quoteContents + caretOrStart;
+
+    }
 }
