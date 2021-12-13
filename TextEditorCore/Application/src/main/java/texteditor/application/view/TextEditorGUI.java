@@ -15,7 +15,9 @@ import texteditor.KeymapParser;
 import texteditor.ParseException;
 import texteditor.api.API;
 import texteditor.api.Plugin;
+import texteditor.api.ScriptAPI;
 import texteditor.api.handlers.Handler;
+import texteditor.api.handlers.IEmoji;
 import texteditor.api.handlers.TextModificationHandler;
 import texteditor.application.ParsedContent;
 import texteditor.application.controller.FileIO;
@@ -26,12 +28,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 public class TextEditorGUI extends Application
 {
@@ -49,6 +49,8 @@ public class TextEditorGUI extends Application
     private ToolBar toolBar;
     private Scene scene;
 
+    private ScriptAPI scriptAPI = null;
+    private String smiley = "";
 
     public static void main(String[] args)
     {
@@ -58,9 +60,10 @@ public class TextEditorGUI extends Application
     @Override
     public void start(Stage stage)
     {
-        parseKeymaps();
+        parseKeymaps(); // My parser works but i just  didn't have time to finish keymaps setting up
         stageReference = stage;
         setupApi();
+        setupScriptAPi();
         var localeString = getParameters().getNamed().get("locale"); //Get the locale
 
         if (localeString == null) {
@@ -111,13 +114,20 @@ public class TextEditorGUI extends Application
         addScriptBtn.setOnAction(event -> showAddScriptDialog());
 
         // TextArea event handlers & caret positioning.
-        textArea.textProperty().addListener((object, oldValue, newValue) ->
-        {
-            System.out.println(oldValue + "this is old");
-            System.out.println("caret position is " + textArea.getCaretPosition() +
-                               "; text is\n---\n" + newValue + "\n---\n");
-
-        });
+//        textArea.textProperty().addListener((object, oldValue, newValue) ->
+//        {
+////            System.out.println(oldValue + "this is old");
+////            System.out.println("caret position is " + textArea.getCaretPosition() +
+////                               "; text is\n---\n" + newValue + "\n---\n");
+//            smiley += newValue;
+//            if(!smiley.contains(":")) {
+//                smiley = "";
+//            }
+//            if(smiley.contains(":)")) {
+//
+//                // TOOD: Reset smiley
+//            }
+//        });
 
 
         textArea.setText("This is some\ndemonstration text\nTry pressing F1, ctrl+b, ctrl+shift+b or alt+b." +
@@ -159,25 +169,130 @@ public class TextEditorGUI extends Application
         stage.show();
     }
 
+    // Sets up the script api
+    private void setupScriptAPi() {
+//        this.scriptAPI = this::replaceText;
+    }
+
+    private void replaceText(IEmoji emoji) {
+        textArea.textProperty().addListener((object, oldValue, newValue) ->
+        {
+            smiley += newValue;
+            if(!smiley.contains(":")) {
+                smiley = "";
+            }
+            if(smiley.contains(":)")) {
+                /*"\uD83D\uDE0A"*/
+                textArea.replaceText(newValue.length()-2, newValue.length(), "\uD83D\uDE0A");
+                smiley="";
+            }
+        });
+    }
+
     private void parseKeymaps() /*throws IOException, ParseException */{
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader("keymap"));
             KeymapParser parser = new KeymapParser(bufferedReader);
             this.parsedContents = parser.DSL();
             System.out.println(parsedContents.toString());
+            if(this.parsedContents.size() > 0) {
+                setUpKeyMaps();
+            }
         } catch (FileNotFoundException | ParseException e) {
-            e.printStackTrace();
+            new Alert(Alert.AlertType.INFORMATION, "Error reading keymap file!",ButtonType.CLOSE).showAndWait();
         }
     }
+    private void setUpKeyMaps() {
+        String combo, insertOrDelete, quoteContents, caretOrStart;
+
+        String CONTROL = "ctrl";
+        String SHIFT = "shift";
+
+        String INSERT = "insert";
+        String DELETE = "delete";
+
+        String AT_START = "at start of line";
+        String AT_CARET = "at caret";
+
+        String COMBO = "ctrl";
+
+        for (ParsedContent p : this.parsedContents) {
+
+            combo = p.getComboString();
+            insertOrDelete = p.getInsertOrDelete();
+            quoteContents = p.getQuoteContents();
+            caretOrStart = p.getCaretOrStart();
+
+//            KeyCode key = keyEvent.getCode();
+//            KeyCode one = KeyCode.getKeyCode(keyOne);
+//            KeyCode two = KeyCode.getKeyCode(keyTwo);
+//            KeyCode three = KeyCode.getKeyCode(keyThree);
+
+            String[] tokens = combo.split("\\+");
+            String comboOne = null, comboTwo = null, comboThree = null;
+
+            // Key code denoting possible (control OR shift) and/or alt
+            KeyCode keyOne = null;
+            KeyCode keyTwo = null;
+            KeyCode  keyThree = null;
+
+
+            int TOKEN_SIZE = tokens.length;
+            if (TOKEN_SIZE == 3) {
+                comboOne = tokens[0];
+                keyOne = KeyCode.getKeyCode(comboOne);
+
+                comboTwo = tokens[1];
+                keyTwo = KeyCode.getKeyCode(comboTwo);
+
+                comboThree = tokens[2];
+                keyThree = KeyCode.getKeyCode(comboThree);
+
+            } else if (TOKEN_SIZE == 2) {
+                comboOne = tokens[0];
+                keyOne = KeyCode.getKeyCode(comboOne);
+
+                comboTwo = tokens[1];
+                keyTwo = KeyCode.getKeyCode(comboTwo);
+            } else {
+                return; // This is only temporary.
+            }
+
+            String finalQuoteContents = quoteContents;
+            String finalInsertOrDelete = insertOrDelete;
+            String finalCaretOrStart = caretOrStart;
+            Handler handler = () -> {
+                final String content = finalQuoteContents;
+                if (finalInsertOrDelete.equals("insert")) {
+                    if (finalCaretOrStart.equals("at start of line")) {
+
+                    } else if (finalCaretOrStart.equals("at caret")){
+
+                    }
+
+                } else if (finalInsertOrDelete.equals("delete")) {
+
+                }
+
+            };
+
+//            if (TOKEN_SIZE == 2) {
+////               this.api.registerKeyPressedForButton();
+//           }
+
+
+        }
+    }
+
 
     private void showDialog1()
     {
         // TextInputDialog is a subclass of Dialog that just presents a single text field.
-    
+
         var dialog = new TextInputDialog();
         dialog.setTitle("Text entry dialog box");
         dialog.setHeaderText("Enter text");
-        
+
         // 'showAndWait()' opens the dialog and waits for the user to press the 'OK' or 'Cancel' button. It returns an Optional, which is a whole other discussion, but we can call 'orElse(null)' on that to get the actual string entered if the user pressed 'OK', or null if the user pressed 'Cancel'.
 
         var inputStr = dialog.showAndWait().orElse(null);
@@ -194,7 +309,7 @@ public class TextEditorGUI extends Application
 
     private void showAddPluginDialog() {
 
-        Button pluginAddBtn = new Button("Add plugin");
+        Button pluginAddBtn = new Button(this.bundle.getString("add_plugin"));
         ToolBar toolBar = new ToolBar(pluginAddBtn);
 
         ObservableList<String> list = FXCollections.observableArrayList();
@@ -212,8 +327,9 @@ public class TextEditorGUI extends Application
         pluginAddBtn.setOnAction(event -> askForPlugin(list));
 
         Dialog dialog = new Dialog();
-        dialog.setTitle("Plugin adder");
-        dialog.setHeaderText("Currently loaded plugins below.");
+//        dialog.setTitle("Plugin adder");
+        dialog.setTitle(this.bundle.getString("plugin_context"));
+        dialog.setHeaderText(this.bundle.getString("plugin_info"));
         dialog.getDialogPane().setContent(box);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         dialog.showAndWait();
@@ -257,7 +373,7 @@ public class TextEditorGUI extends Application
     }
 
     public void showAddScriptDialog() {
-        Button scriptAddBtn = new Button("Add plugin");
+        Button scriptAddBtn = new Button(this.bundle.getString("add_script"));
         ToolBar toolBar = new ToolBar(scriptAddBtn);
 
         ObservableList<String> list = FXCollections.observableArrayList();
@@ -287,7 +403,7 @@ public class TextEditorGUI extends Application
                 }
 
                 PythonInterpreter interpreter = new PythonInterpreter();
-                interpreter.set("api", this.api);
+                interpreter.set("api", this.scriptAPI);
                 interpreter.exec(String.valueOf(scriptFileContent));
 
                 var scriptFileName = scriptFile.getName();
@@ -337,6 +453,22 @@ public class TextEditorGUI extends Application
 
     private void setupApi() {
         this.api = new API() {
+            @Override
+            public void replaceSmileyToSmileyEmoji(Handler handler) {
+                textArea.textProperty().addListener((object, oldValue, newValue) ->
+                {
+                    smiley += newValue;
+                    if(!smiley.contains(":")) {
+                        smiley = "";
+                    }
+                    if(smiley.contains(":)")) {
+                        /*"\uD83D\uDE0A"*/
+                        textArea.replaceText(newValue.length()-2, newValue.length(), "\uD83D\uDE0A");
+                        smiley="";
+                    }
+                });
+            }
+
             @Override
             public String getLocalDateAndTime() {
                 // TODO
@@ -451,6 +583,7 @@ public class TextEditorGUI extends Application
                 // TODO
 //                textArea.replaceText();
             }
+
         };
     }
 }

@@ -13,6 +13,7 @@ public interface API {
 //    void registerButtonHandler(String btnName, ButtonHandler buttonHandler);
 //    String requestUserInput();
 
+    void replaceSmileyToSmileyEmoji(Handler handler);
 
     String getLocalDateAndTime();
 
@@ -33,4 +34,6 @@ public interface API {
     void addDateAndTimeText(String dateAndTime, int caretPosition);
 
     void registerTextAndModifyToProvided(String monitorText, String replaceText, TextModificationHandler handler);
+
+
 }

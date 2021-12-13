@@ -12,19 +12,17 @@ PARSER_END(KeymapParser)
 SKIP : { " " | "\t" | "\r" }
 
 TOKEN : {
-    <KEY_COMBO: ("ctrl" |"alt")"+"("shift""+")? (["a"-"z"])>|
-    <SHIFT : "shift"> |
+    <KEY_COMBO: ("ctrl" |"alt")"+"("shift""+")? (["a"-"z"]){1}>|
     <EQUALS : "=" > |
     <INSERT_OR_DELETE : ("insert" | "delete")>|
     <AT_START_OR_AT_CARET : "at start of line" | "at caret" >|
     <TODO: "/*TODO*/"> |
     <FIXME : "/*FIXME*/"> |
-    <STR : "\""(["a"-"z","A"-"Z","/"])*"\"" > |
+    <STR : ("\"")(["a"-"z","A"-"Z","/"," ","*"])* ("\"") > |
     <NEW_LINE: "\n">
 }
 
-// Production methods
-
+/*Production method */
 List<ParsedContent> DSL() :
 {
     Token combo, insert_Or_delete, quote_string, at_start_or_at_caret;
@@ -44,41 +42,13 @@ List<ParsedContent> DSL() :
                     .setQuoteContents(quote_string.image)
                     .setCaretOrStart(at_start_or_at_caret.image)
             );
-            System.out.println(parsedContents);
         }
     )*
     <EOF>
     {
-        System.out.println("Hello world");
+//        System.out.println(parsedContents);
+//        System.out.println(parsedContents.size());
         return parsedContents;
     }
 }
 
-//List<ParsedContent> DSL():
-//{
-//    Token combo, insert_Or_delete, quote_string, at_start_or_at_caret;
-//}
-//
-//{
-//    (
-//           combo= <KEY_COMBO> <EQUALS>
-//           insert_Or_delete= <INSERT_OR_DELETE>
-//           quote_string = <STR>
-//           at_start_or_at_caret = <AT_START_OR_AT_CARET>
-//           <NEW_LINE>
-//            {
-//                parsedContents.add(
-//                        new ParsedContent()
-//                        .setComboString(combo.image)
-//                        .setInsertOrDelete(insert_Or_delete.image)
-//                        .setQuoteContents(quote_string.image)
-//                        .setCaretOrStart(at_start_or_at_caret.image)
-//                );
-//                System.out.println(parsedContents);
-//            }
-//        )*
-//        <EOF>
-//        {
-//            return parsedContents;
-//        }
-//}

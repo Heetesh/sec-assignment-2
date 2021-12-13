@@ -45,7 +45,10 @@ public class ParsedContent {
 
     @Override
     public String toString() {
-        return " " +  comboString + insertOrDelete + quoteContents + caretOrStart;
+        return "[Combo: " +comboString +
+                "\tInsert or delete: " + insertOrDelete +
+                "\tcontents: " + quoteContents +
+                "\tAt Caret or start: " + caretOrStart + "]\n";
 
     }
 }
